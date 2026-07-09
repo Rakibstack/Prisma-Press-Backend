@@ -23,3 +23,5 @@ export const sendResponse = <T>(res: Response, data: Tresponse<T>) => {
     meta: data.meta
   });
 };
+
+
