@@ -22,7 +22,7 @@ const registerUser = catchasync(
 
 const getMyProfile = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { accessToken, refreshToken } = req.cookies;
+    const { accessToken, } = req.cookies;
     const verifyToken = jwtUtils.verifyToken(
       accessToken,
       config.jwt_access_secret,
