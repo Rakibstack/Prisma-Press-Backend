@@ -2,26 +2,37 @@ import { NextFunction, Request, Response } from "express";
 import { catchasync } from "../../utils/catchAsync";
 import { authService } from "./auth.service";
 import { sendResponse } from "../../utils/sendResponse";
-import  httpStatus  from "http-status";
+import httpStatus from "http-status";
 
+const loginUser = catchasync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const payload = req.body;
+    const { accessToken, refreshToken } =
+      await authService.loginUserIntoDB(payload);
 
-  const loginUser = catchasync(async (req : Request,res :Response,next:NextFunction) => {
-
-    const payload = req.body
-    const result = await authService.loginUserIntoDB(payload)
-    sendResponse(res,{
-        success:true,
-        statusCode:httpStatus.OK,
-        message: 'User Login Successfull',
-        data: result
+    res.cookie('accessToken',accessToken,{
+      httpOnly: true,
+      secure: false,
+      sameSite: 'none',
+      maxAge: 1000 * 60 * 60 * 24  //24h or 1d
     })
 
-  })
+    res.cookie('refreshToken',refreshToken,{
+      httpOnly: true,
+      secure:false,
+      sameSite: "none",
+      maxAge: 1000 * 60 * 60 * 24 * 7 // 7d 
+    })
 
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "User Login Successfull",
+      data: { accessToken, refreshToken },
+    });
+  },
+);
 
-
-
-
-  export const authController = {
-    loginUser
-  }
+export const authController = {
+  loginUser,
+};

@@ -26,11 +26,7 @@ const loginUserIntoDB = async (payload: Ilogin) => {
     email: user.email,
     role: user.role,
   };
-  //   const accessToken = Jwt.sign(jwtPayload,
-  //     config.jwt_access_secret, {
-  //     expiresIn: config.jwt_access_expires_in,
-  //   } as SignOptions
-  // );
+
   const accessToken = jwtUtils.createToken(
     jwtPayload,
     config.jwt_access_secret,
