@@ -6,43 +6,70 @@ import config from "../config";
 import { JwtPayload } from "jsonwebtoken";
 import { prisma } from "../lib/prisma";
 
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        name: string;
+        email: string;
+        role: string;
+      };
+    }
+  }
+}
+
 export const auth = (...requeredRole: Role[]) => {
   return catchasync(async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.cookies.accessToken
-      ? req.cookies.accessToken
-      : req.headers.authorization?.startsWith("Bearer")
-        ? req.headers.authorization.split(" ")[1]
-        : req.headers.authorization;     
-        
-        if (!token) {
-            throw new Error(
-                "you are not logged in. please log in to access this resource",
-            );
-        }     
-        const verifyedToken = jwtUtils.verifyToken(token,config.jwt_access_secret);
-        
-        if(!verifyedToken){
-            throw new Error("invalied credentials")
-        }
+    const token = req.cookies.accessToken ?
+       req.cookies.accessToken
+      : req.headers.authorization?.startsWith("Bearer") ?
+        req.headers.authorization?.split(" ")[1]
+        : req.headers.authorization;
 
-       const {id,name,email,role} = verifyedToken as JwtPayload
+    if (!token) {
+      throw new Error(
+        "you are not logged in. please log in to access this resource",
+      );
+    }
+    const verifyedToken = jwtUtils.verifyToken(token, config.jwt_access_secret);
 
-       if(requeredRole.length && !requeredRole.includes(role)){
-        throw new Error('Forbidden Access.you dont have permission to access this resource.')
-       }
+    if (!verifyedToken.success) {
+      throw new Error(verifyedToken.error);
+    }
 
-        const user =await prisma.user.findUniqueOrThrow({
-            where: {
-                id,
-                name,
-                email,
-                role
-            }
-        })
-        if(!user){
-         throw new Error("user not found.please login again")
-        }
-        
+    const { id, name, email, role } = verifyedToken.data as JwtPayload;
 
+    if (requeredRole.length && !requeredRole.includes(role)) {
+      throw new Error(
+        "Forbidden Access.you dont have permission to access this resource.",
+      );
+    }
+
+    const user = await prisma.user.findUniqueOrThrow({
+      where: {
+        id,
+        name,
+        email,
+        role,
+      },
     });
+
+    if (!user) {
+      throw new Error("user not found.please login again");
+    }
+
+    if (user.activeStatus === "BLOCKED") {
+      throw new Error("your account has been bocked,please contact support");
+    }
+
+    req.user = {
+      id,
+      name,
+      email,
+      role,
+    };
+
+    next();
+  });
 };

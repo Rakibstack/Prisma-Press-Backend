@@ -13,9 +13,15 @@ const createToken = (
 const verifyToken = (access: string, secret: string) => {
   try {
     const verifiedToken = jwt.verify(access, secret);
-    return verifiedToken;
-  } catch (error : any) {
-    throw new Error("invalid Token");
+    return {
+      success: true,
+      data: verifiedToken,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message,
+    };
   }
 };
 

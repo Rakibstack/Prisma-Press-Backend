@@ -11,5 +11,10 @@ route.get(
   auth(Role.ADMIN, Role.AUTHOR, Role.USER),
   userController.getMyProfile,
 );
+route.put(
+  "/my-profile",
+  auth(Role.ADMIN, Role.AUTHOR, Role.USER),
+  userController.updateMyProfile,
+);
 
 export const userRoute = route;
