@@ -6,12 +6,27 @@ import  HttpStatus  from "http-status";
 
 const createPost = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
-     
+    const userId = req.user?.id;
+    const payload = req.body
+    const result = await postService.createPostIntoDB(payload,userId as string)
+    sendResponse(res,{
+        success: true,
+        statusCode: HttpStatus.CREATED,
+        message: 'Post Created Successfully',
+        data: {result}
+    })
   },
 );
  const getAllPost = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
      
+    const result = await postService.getAllPostFromDB()
+    sendResponse(res,{
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: "Retrived All Post",
+        data: {result}
+    })
   },
 );
  const getPostStats = catchasync(

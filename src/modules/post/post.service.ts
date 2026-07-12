@@ -1,27 +1,42 @@
-import { prisma } from "../../lib/prisma"
+import { prisma } from "../../lib/prisma";
+import { IcreatePostPayload } from "./post.interface";
 
-const createPostIntoDB = async () => {}
+const createPostIntoDB = async (
+  payload: IcreatePostPayload,
+  userId: string,
+) => {
 
- const getAllPostFromDB =async() => {}
+  const createPost = await prisma.post.create({
+    data: {
+        ...payload,
+       authorId: userId
+    }
+  })
+  return createPost;
+};
 
- const getPostStatsFromDB =async() => {}
+const getAllPostFromDB = async () => {
 
- const getMyPostsFromDB =async() => {}
+    const result = await prisma.post.findMany()
+    return result;
+};
 
- const getPostByIdFromDB =async() => {}
+const getPostStatsFromDB = async () => {};
 
- const updatePostFromDB =async() => {}
+const getMyPostsFromDB = async () => {};
 
- const deletePostFromDB =async() => {}
+const getPostByIdFromDB = async () => {};
 
+const updatePostFromDB = async () => {};
 
+const deletePostFromDB = async () => {};
 
 export const postService = {
-    createPostIntoDB,
-    getAllPostFromDB,
-    getPostStatsFromDB,
-    getMyPostsFromDB,
-    getPostByIdFromDB,
-    updatePostFromDB,
-    deletePostFromDB
-}
+  createPostIntoDB,
+  getAllPostFromDB,
+  getPostStatsFromDB,
+  getMyPostsFromDB,
+  getPostByIdFromDB,
+  updatePostFromDB,
+  deletePostFromDB,
+};
