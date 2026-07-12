@@ -42,6 +42,17 @@ const createPost = catchasync(
  const getPostById = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
      
+    const postId = req.params?.postId
+    if(!postId){
+        throw new Error('post id is required')
+    }
+    const result = await postService.getPostByIdFromDB(postId as string)
+    sendResponse(res,{
+        success: true,
+        statusCode: HttpStatus.OK,
+        message: 'Post Retrive Successfully',
+        data: {result}
+    })
   },
 );
  const updatePost = catchasync(
