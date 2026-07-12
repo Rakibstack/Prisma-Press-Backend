@@ -8,4 +8,4 @@ route.post('/login',authController.loginUser)
 route.post('/refresh-token',authController.refreshToken)
 
 
-export const authroute = route
+export const authRoutes = route

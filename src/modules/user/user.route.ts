@@ -17,4 +17,4 @@ route.put(
   userController.updateMyProfile,
 );
 
-export const userRoute = route;
+export const userRoutes = route;
