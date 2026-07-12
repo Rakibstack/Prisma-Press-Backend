@@ -10,19 +10,19 @@ const loginUser = catchasync(
     const { accessToken, refreshToken } =
       await authService.loginUserIntoDB(payload);
 
-    res.cookie('accessToken',accessToken,{
+    res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: false,
-      sameSite: 'none',
-      maxAge: 1000 * 60 * 60 * 24  //24h or 1d
-    })
-
-    res.cookie('refreshToken',refreshToken,{
-      httpOnly: true,
-      secure:false,
       sameSite: "none",
-      maxAge: 1000 * 60 * 60 * 24 * 7 // 7d 
-    })
+      maxAge: 1000 * 60 * 60 * 24, //24h or 1d
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "none",
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7d
+    });
 
     sendResponse(res, {
       success: true,
@@ -32,7 +32,32 @@ const loginUser = catchasync(
     });
   },
 );
+const refreshToken = catchasync(
+  async (req: Request, res: Response, next: NextFunction) => {
+
+    const refreshToken = req.cookies.refreshToken
+     
+    const {accessToken} = await authService.refreshToken(refreshToken)
+
+     res.cookie('accessToken',accessToken,{
+      httpOnly: true,
+      secure: false,
+      sameSite: 'none',
+      maxAge: 1000 * 60 * 60 * 24  // 1d or 24h
+     })
+
+    sendResponse(res,{
+      success: true,
+      statusCode: httpStatus.OK,
+      message: 'Token Refreshed Successfully',
+      data: {
+        accessToken
+      }
+    })
+  },
+);
 
 export const authController = {
   loginUser,
+  refreshToken,
 };
