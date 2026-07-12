@@ -37,6 +37,14 @@ const createPost = catchasync(
  const getMyPosts = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
      
+    const authorId = req.user?.id
+    const result = await postService.getMyPostsFromDB(authorId as string)
+    sendResponse(res,{
+        success : true,
+        statusCode: HttpStatus.OK,
+        message: "Retrieve My Post Successfully",
+        data: {result}
+    })
   },
 );
  const getPostById = catchasync(
