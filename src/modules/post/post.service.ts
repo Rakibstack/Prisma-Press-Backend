@@ -65,6 +65,12 @@ const getPostStatsFromDB = async () => {
             status: CommentStatus.REJECTED
           }
         })
+        const totalViewsAggregate = await prismaTx.post.aggregate({
+          _sum: {
+            views: true,
+          }
+        })
+        const totalViews = totalViewsAggregate._sum.views
 
         return {
           totalposts,
@@ -73,7 +79,8 @@ const getPostStatsFromDB = async () => {
           totalDraftPosts,
           totalComments,
           totalApprovedComments,
-          totalRejectedComments  
+          totalRejectedComments ,
+          totalViews 
         }
 
     }

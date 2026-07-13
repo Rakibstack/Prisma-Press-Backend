@@ -15,5 +15,4 @@ route.delete('/:postId',auth(Role.ADMIN,Role.USER,Role.AUTHOR),postController.de
 
 
 
-
 export const postRoutes = route;
