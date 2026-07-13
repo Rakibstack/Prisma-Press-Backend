@@ -67,7 +67,10 @@ const updatePost = catchasync(
     const payload = req.body;
     const authorId = req.user?.id;
     const isAdmin = req.user?.role === "ADMIN";
-    console.log(isAdmin);
+
+    if (!postId) {
+      throw new Error("post id is required");
+    }
 
     const result = await postService.updatePostFromDB(
       postId as string,
@@ -84,7 +87,26 @@ const updatePost = catchasync(
   },
 );
 const deletePost = catchasync(
-  async (req: Request, res: Response, next: NextFunction) => {},
+  async (req: Request, res: Response, next: NextFunction) => {
+    const postId = req.params.postId;
+    const authorId = req.user?.id;
+    const isAdmin = req.user?.role === "ADMIN";
+
+    if (!postId) {
+      throw new Error("post id is required");
+    }
+    await postService.deletePostFromDB(
+      postId as string,
+      authorId as string,
+      isAdmin,
+    );
+    sendResponse(res,{
+      success : true,
+      statusCode: HttpStatus.OK,
+      message: 'post delete successfully',
+      data: null,
+    })
+  },
 );
 
 export const postController = {
