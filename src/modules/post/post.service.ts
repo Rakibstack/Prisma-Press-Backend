@@ -1,5 +1,5 @@
 import { prisma } from "../../lib/prisma";
-import { IcreatePostPayload } from "./post.interface";
+import { IcreatePostPayload, IupdatePostPayload } from "./post.interface";
 
 const createPostIntoDB = async (
   payload: IcreatePostPayload,
@@ -40,7 +40,6 @@ const getMyPostsFromDB = async (authorId: string) => {
     orderBy: {
       createdAt: "desc",
     },
-
     include: {
       comment: true,
       author: {
@@ -48,7 +47,6 @@ const getMyPostsFromDB = async (authorId: string) => {
           password: true,
         },
       },
-
       _count: {
         select: {
           comment: true,
@@ -56,7 +54,7 @@ const getMyPostsFromDB = async (authorId: string) => {
       },
     },
   });
-    return result
+  return result;
 };
 
 const getPostByIdFromDB = async (postId: string) => {
@@ -79,7 +77,33 @@ const getPostByIdFromDB = async (postId: string) => {
   return updatePost;
 };
 
-const updatePostFromDB = async () => {};
+const updatePostFromDB = async (
+  postId: string,
+  payload: IupdatePostPayload,
+  authorId: string,
+  isAdmin: boolean,
+) => {
+  const post = await prisma.post.findUniqueOrThrow({
+    where: { id: postId },
+  });
+
+  if (!isAdmin && post.authorId !== authorId) {
+    throw new Error("you are not the owner of this post");
+  }
+  const updatePost = await prisma.post.update({
+    where: { id: postId },
+    data: payload,
+    include: {
+      author: {
+        omit: {
+          password: true,
+        },
+      },
+      comment: true,
+    },
+  });
+  return updatePost;
+};
 
 const deletePostFromDB = async () => {};
 
