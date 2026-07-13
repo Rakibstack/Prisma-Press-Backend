@@ -1,3 +1,4 @@
+import { CommentStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { IcreatePostPayload, IupdatePostPayload } from "./post.interface";
 
@@ -58,23 +59,38 @@ const getMyPostsFromDB = async (authorId: string) => {
 };
 
 const getPostByIdFromDB = async (postId: string) => {
-  const updatePost = await prisma.post.update({
-    where: { id: postId },
-    data: {
-      views: {
-        increment: 1,
-      },
-    },
-    include: {
-      author: {
-        omit: {
-          password: true,
+
+  const transactionResult = await prisma.$transaction(async (tx) => {
+    await tx.post.update({
+      where: { id: postId },
+      data: {
+        views: {
+          increment: 1,
         },
       },
-      comment: true,
-    },
+    });
+    const post = await tx.post.findUniqueOrThrow({
+      where: { id: postId },
+      include: {
+        author: {
+          omit: { password: true },
+        },
+        comment: {
+          where: {
+            status: CommentStatus.APPROVED,
+          },
+        },
+        _count: {
+          select: {
+            comment: true,
+          },
+        },
+      },
+    });
+    return post
   });
-  return updatePost;
+
+  return transactionResult;
 };
 
 const updatePostFromDB = async (
