@@ -32,7 +32,16 @@ const getAllPost = catchasync(
   },
 );
 const getPostStats = catchasync(
-  async (req: Request, res: Response, next: NextFunction) => {},
+  async (req: Request, res: Response, next: NextFunction) => {
+
+     const result = await postService.getPostStatsFromDB()
+     sendResponse(res,{
+      success: true,
+      statusCode: HttpStatus.OK,
+      message: 'Retrive All Post Status Successfully',
+      data: result
+     })
+  },
 );
 const getMyPosts = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
