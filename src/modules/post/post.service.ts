@@ -32,59 +32,61 @@ const getAllPostFromDB = async () => {
 };
 
 const getPostStatsFromDB = async () => {
-
-  const transactionResult = await prisma.$transaction(
-    async (prismaTx) => {
-
-      const totalposts = await prismaTx.post.count();
-      const totalPublishedPosts = await prismaTx.post.count({
+  const transactionResult = await prisma.$transaction(async (prismaTx) => {
+    const [
+      totalposts,
+      totalPublishedPosts,
+      totalArchivedPosts,
+      totalDraftPosts,
+      totalComments,
+      totalApprovedComments,
+      totalRejectedComments,
+      totalViews,
+    ] = await Promise.all([
+      await prismaTx.post.count(),
+      await prismaTx.post.count({
         where: {
-          status : PostStatus.PUBLISHED
-        }
-      })
-      const totalDraftPosts = await prismaTx.post.count({
+          status: PostStatus.PUBLISHED,
+        },
+      }),
+      await prismaTx.post.count({
         where: {
-          status : PostStatus.DRAFT
-        }
-      })
-      const totalArchivedPosts = await prismaTx.post.count({
+          status: PostStatus.DRAFT,
+        },
+      }),
+      await prismaTx.post.count({
         where: {
-          status : PostStatus.ARCHIVED
-        }
-      })
-
-        const totalComments = await prismaTx.comment.count()
-
-        const totalApprovedComments = await prismaTx.comment.count({
-          where: {
-            status: CommentStatus.APPROVED
-          }
-        })
-        const totalRejectedComments = await prismaTx.comment.count({
-          where: {
-            status: CommentStatus.REJECTED
-          }
-        })
-        const totalViewsAggregate = await prismaTx.post.aggregate({
-          _sum: {
-            views: true,
-          }
-        })
-        const totalViews = totalViewsAggregate._sum.views
-
-        return {
-          totalposts,
-          totalPublishedPosts,
-          totalArchivedPosts,
-          totalDraftPosts,
-          totalComments,
-          totalApprovedComments,
-          totalRejectedComments ,
-          totalViews 
-        }
-
-    }
-  )
+          status: PostStatus.ARCHIVED,
+        },
+      }),
+      await prismaTx.comment.count(),
+      await prismaTx.comment.count({
+        where: {
+          status: CommentStatus.APPROVED,
+        },
+      }),
+      await prismaTx.comment.count({
+        where: {
+          status: CommentStatus.REJECTED,
+        },
+      }),
+      await prismaTx.post.aggregate({
+        _sum: {
+          views: true,
+        },
+      }),
+    ]);
+    return {
+      totalposts,
+      totalPublishedPosts,
+      totalArchivedPosts,
+      totalDraftPosts,
+      totalComments,
+      totalApprovedComments,
+      totalRejectedComments,
+      totalViews: totalViews._sum.views,
+    };
+  });
 
   return transactionResult;
 };
@@ -115,7 +117,6 @@ const getMyPostsFromDB = async (authorId: string) => {
 };
 
 const getPostByIdFromDB = async (postId: string) => {
-
   const transactionResult = await prisma.$transaction(async (tx) => {
     await tx.post.update({
       where: { id: postId },
@@ -143,7 +144,7 @@ const getPostByIdFromDB = async (postId: string) => {
         },
       },
     });
-    return post
+    return post;
   });
 
   return transactionResult;
