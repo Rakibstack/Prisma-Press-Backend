@@ -14,5 +14,4 @@ route.patch('/:postId',auth(Role.ADMIN,Role.USER),postController.updatePost)
 route.delete('/:postId',auth(Role.ADMIN,Role.USER),postController.deletePost)
 
 
-
 export const postRoutes = route;

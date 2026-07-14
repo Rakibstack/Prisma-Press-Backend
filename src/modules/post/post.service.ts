@@ -17,15 +17,32 @@ const createPostIntoDB = async (
 
 const getAllPostFromDB = async () => {
   const result = await prisma.post.findMany({
-    include: {
-      author: {
-        select: {
-          name: true,
-          email: true,
+    // include: {
+    //   author: {
+    //     select: {
+    //       name: true,
+    //       email: true,
+    //     },
+    //   },
+    //   comment: true,
+    // },
+      where: {
+       OR : [
+        {
+          title: {
+            contains: 'Ronaldo',
+            mode: 'insensitive'
+
+          }
         },
-      },
-      comment: true,
-    },
+        {
+          content: {
+            contains: 'ronaldo',
+            mode: "insensitive"
+          }
+        }
+       ]
+      }
   });
 
   return result;
