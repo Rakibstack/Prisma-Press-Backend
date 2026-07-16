@@ -1,6 +1,6 @@
 import { CommentStatus, PostStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
-import { IcreatePostPayload, IupdatePostPayload } from "./post.interface";
+import { IcreatePostPayload, IpostQuery, IupdatePostPayload } from "./post.interface";
 
 const createPostIntoDB = async (
   payload: IcreatePostPayload,
@@ -15,42 +15,46 @@ const createPostIntoDB = async (
   return createPost;
 };
 
-const getAllPostFromDB = async () => {
+const getAllPostFromDB = async (query :IpostQuery) => {
+
+  const limit = query.limit ? Number(query.limit) : 10;
+  const page = query.page ? (Number(query.page)) : 1;
+  const skip = (page - 1) * limit;
+  const sortBy= query.sortBy ? query.sortBy : 'createdAt';
+  const sortOrder = query.sortOrder ? query.sortOrder : "desc"
   const result = await prisma.post.findMany({
+
    
       where: {
-       OR : [
-        {
-          title: {
-            contains: 'Ronaldo',
-            mode: 'insensitive'
+       AND: [
+           
+         query.searchTerm ? {
+          OR : [
+            {
+               title : {
+                contains:query.searchTerm,
+                mode: "insensitive"
+               }
+            },
+            {
+               content : {
+                contains:query.searchTerm,
+                mode: "insensitive"
+               }
+            }
+          ]
+         } : {},
 
-          }
-        },
-        {
-          content: {
-            contains: 'ronaldo',
-            mode: "insensitive"
-          }
-        }
+         query.title ? {title : query.title } : {},
+         query.content ? {content : query.content} : {}, 
        ]
-      }
-      where: {
-       OR : [
-        {
-          title: {
-            contains: 'Ronaldo',
-            mode: 'insensitive'
+       
+      },
+      take:limit,
+      skip: skip,
 
-          }
-        },
-        {
-          content: {
-            contains: 'ronaldo',
-            mode: "insensitive"
-          }
-        }
-       ]
+      orderBy: {
+        [sortBy] : sortOrder
       }
   });
 
