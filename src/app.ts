@@ -6,6 +6,7 @@ import { userRoutes } from "./modules/user/user.route";
 import {  authRoutes } from "./modules/auth/auth.route";
 import { postRoutes } from "./modules/post/post.route";
 import { commentRoutes } from "./modules/comment/comment.route";
+import { routeNotFound } from "./middlewares/routeNotFound";
 
 const app: Application = express();
 
@@ -28,5 +29,9 @@ app.use("/api/users",userRoutes);
 app.use('/api/auth',authRoutes);
 app.use('/api/posts',postRoutes)
 app.use('/api/comments',commentRoutes)
+
+app.use(routeNotFound)
+
+
 
 export default app;

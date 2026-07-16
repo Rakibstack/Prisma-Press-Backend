@@ -21,6 +21,7 @@ const createPostIntoDB = async (
 };
 
 const getAllPostFromDB = async (query: IpostQuery) => {
+
   const limit = query.limit ? Number(query.limit) : 10;
   const page = query.page ? Number(query.page) : 1;
   const skip = (page - 1) * limit;
@@ -31,6 +32,7 @@ const getAllPostFromDB = async (query: IpostQuery) => {
   const tagsArray = Array.isArray(tags) ? tags : [];
 
   const addConditions: PostWhereInput[] = [];
+  
 
   if (query.searchTerm) {
     addConditions.push({
