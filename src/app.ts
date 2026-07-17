@@ -6,7 +6,8 @@ import { userRoutes } from "./modules/user/user.route";
 import {  authRoutes } from "./modules/auth/auth.route";
 import { postRoutes } from "./modules/post/post.route";
 import { commentRoutes } from "./modules/comment/comment.route";
-import { globalErrorHandler, routeNotFound } from "./middlewares/routeNotFound";
+import { routeNotFound } from "./middlewares/routeNotFound";
+import { globalErrorHandler } from "./middlewares/golobalErrorHandler";
 
 const app: Application = express();
 
