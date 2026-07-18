@@ -13,4 +13,6 @@ model Subscription {
     createdAt DateTime @default(now())
     updateAt DateTime  @updatedAt
 
+    @@map("subscriptions")
+
 }
