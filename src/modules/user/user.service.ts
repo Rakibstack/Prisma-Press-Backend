@@ -6,13 +6,12 @@ import { RegisterUserPayload } from "./user.interface";
 const registerUserIntoDB = async (payload: RegisterUserPayload) => {
   const { name, email, password, profilePhoto } = payload;
 
-  const userExists = await prisma.user.findUniqueOrThrow({
+    await prisma.user.findUniqueOrThrow({
     where: {
       email: email,
     },
   });
   
-
   const hashedPassword = await bcrypt.hash(
     password,
     Number(config.bcrypt_salt_rounds),
@@ -31,12 +30,6 @@ const registerUserIntoDB = async (payload: RegisterUserPayload) => {
     },
   });
 
-  // await prisma.profile.create({
-  //   data: {
-  //     userId: createdUser.id,
-  //     profilePhoto: profilePhoto,
-  //   },
-  // });
   const user = await prisma.user.findUnique({
     where: {
       email: createdUser.email,

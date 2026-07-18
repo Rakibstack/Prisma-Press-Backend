@@ -20,3 +20,10 @@ enum CommentStatus {
   PENDING
   REJECTED
 }
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  EXPIRED
+
+}
