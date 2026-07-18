@@ -8,6 +8,7 @@ import { postRoutes } from "./modules/post/post.route";
 import { commentRoutes } from "./modules/comment/comment.route";
 import { routeNotFound } from "./middlewares/routeNotFound";
 import { globalErrorHandler } from "./middlewares/golobalErrorHandler";
+import { subscriptionRoutes } from "./modules/subscription/subscription.route";
 
 const app: Application = express();
 
@@ -30,6 +31,7 @@ app.use("/api/users",userRoutes);
 app.use('/api/auth',authRoutes);
 app.use('/api/posts',postRoutes)
 app.use('/api/comments',commentRoutes)
+app.use('/api/subscription',subscriptionRoutes)
 
 app.use(routeNotFound)
 
