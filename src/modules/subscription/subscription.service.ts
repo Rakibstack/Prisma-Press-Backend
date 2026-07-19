@@ -26,27 +26,51 @@ const createCheckoutSession = async (userId: string) => {
     }
 
     const session = await stripe.checkout.sessions.create({
-        line_items: [
-            {
-                price:config.stripe_product_price_id,
-                quantity: 1
-            }
-        ],
-        mode : "subscription",
-        customer: stripeCustomerId,
-        payment_method_types:["card"],
-        success_url :`${config.app_Url}/Premium?success=true`,
-        cancel_url :`${config.app_Url}/payment?success=false`,
-        metadata: {userId : user.id}
-    })
-      return session.url 
-    
+      line_items: [
+        {
+          price: config.stripe_product_price_id,
+          quantity: 1,
+        },
+      ],
+      mode: "subscription",
+      customer: stripeCustomerId,
+      payment_method_types: ["card"],
+      success_url: `${config.app_Url}/Premium?success=true`,
+      cancel_url: `${config.app_Url}/payment?success=false`,
+      metadata: { userId: user.id },
+    });
+    return session.url;
   });
-   return{
-    paymentUrl : transactionResult
-   };
+  return {
+    paymentUrl: transactionResult,
+  };
+};
+
+const handleWebhook = async (payload: Buffer, signature: string) => {
+  const endpointSecret = config.stripe_webhook_secret as string;
+
+  const event = stripe.webhooks.constructEvent(
+    payload,
+    signature,
+    endpointSecret,
+  );
+  switch(event.type){
+    case 'checkout.session.completed' :
+
+    break;
+    case 'customer.subscription.updated' : 
+
+    break;
+    case 'customer.subscription.deleted' : 
+
+    break;
+    default : 
+        console.log(`Unhandled event type ${event.type}.`);
+      break;
+  }
 };
 
 export const subscriptionService = {
   createCheckoutSession,
+  handleWebhook,
 };

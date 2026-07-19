@@ -10,6 +10,8 @@ route.post('/checkout',
     subscriptionController.createCheckoutSession
 )
 
+route.post('/webhook',subscriptionController.handleWebhook)
+
 
 
 export const subscriptionRoutes = route

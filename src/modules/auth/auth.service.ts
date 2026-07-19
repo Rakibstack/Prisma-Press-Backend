@@ -13,13 +13,11 @@ const loginUserIntoDB = async (payload: Ilogin) => {
       email: email,
     },
   });
-
   const matchedPassword = await bcrypt.compare(password, user.password);
 
   if (!matchedPassword) {
     throw new Error("invalid credentials");
   }
-
   const jwtPayload = {
     id: user.id,
     name: user.name,
@@ -60,9 +58,9 @@ const refreshToken = async (refreshToken: string) => {
     where: { id },
   });
 
-   if(user.activeStatus === "BLOCKED"){
-    throw new Error('user is blocked')
-   }
+  if (user.activeStatus === "BLOCKED") {
+    throw new Error("user is blocked");
+  }
 
   const jwtPayload = {
     id,
@@ -76,7 +74,7 @@ const refreshToken = async (refreshToken: string) => {
     config.jwt_access_expires_in as SignOptions,
   );
 
-  return {accessToken}
+  return { accessToken };
 };
 
 export const authService = {
