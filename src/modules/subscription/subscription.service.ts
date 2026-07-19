@@ -1,6 +1,8 @@
+import Stripe from "stripe";
 import config from "../../config";
 import { prisma } from "../../lib/prisma";
 import { stripe } from "../../lib/stripe";
+import console from "console";
 
 const createCheckoutSession = async (userId: string) => {
   const transactionResult = await prisma.$transaction(async (tx) => {
@@ -47,6 +49,8 @@ const createCheckoutSession = async (userId: string) => {
 };
 
 const handleWebhook = async (payload: Buffer, signature: string) => {
+  console.log("webhook Called");
+  
   const endpointSecret = config.stripe_webhook_secret as string;
 
   const event = stripe.webhooks.constructEvent(
@@ -54,18 +58,33 @@ const handleWebhook = async (payload: Buffer, signature: string) => {
     signature,
     endpointSecret,
   );
-  switch(event.type){
-    case 'checkout.session.completed' :
+  switch (event.type) {
+    case "checkout.session.completed":
+      console.log("checkout.session.completed event received");
+      const session: Stripe.Checkout.Session = event.data.object;
+      console.log(session);
+      
+      const userId = session.metadata?.userId;
+      const stripeCustomerId = session.customer;
+      const stripeSubscriptionId = session.subscription as string;
 
-    break;
-    case 'customer.subscription.updated' : 
+      if (!userId || !stripeCustomerId || !stripeSubscriptionId) {
+        throw new Error("Webhook Failed");
+      }
 
-    break;
-    case 'customer.subscription.deleted' : 
+      const stripeSubscription =
+        await stripe.subscriptions.retrieve(stripeSubscriptionId);
 
-    break;
-    default : 
-        console.log(`Unhandled event type ${event.type}.`);
+      const currentPeriodEnd =
+        stripeSubscription.items.data[0]?.current_period_end;
+
+      break;
+    case "customer.subscription.updated":
+      break;
+    case "customer.subscription.deleted":
+      break;
+    default:
+      console.log(`Unhandled event type ${event.type}.`);
       break;
   }
 };
