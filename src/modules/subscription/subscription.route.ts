@@ -11,6 +11,10 @@ route.post('/checkout',
 )
 
 route.post('/webhook',subscriptionController.handleWebhook)
+route.get('/status',
+    auth(Role.ADMIN,Role.USER),
+    subscriptionController.getSubscriptionStatus
+)
 
 
 

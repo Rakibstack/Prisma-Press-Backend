@@ -23,16 +23,30 @@ const createCheckoutSession = catchasync(
 
 const handleWebhook = catchasync(
   async (req: Request, res: Response, next: NextFunction) => {
-
     const event = req.body as Buffer;
-    const signature = req.headers['stripe-signature'] as string
+    const signature = req.headers["stripe-signature"] as string;
 
-    await subscriptionService.handleWebhook(event,signature);
+    await subscriptionService.handleWebhook(event, signature);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpstatus.OK,
+      message: "Webhool Triggered Successfully",
+      data: null,
+    });
+  },
+);
+
+const getSubscriptionStatus = catchasync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.user?.id;
+    const result = await subscriptionService.getSubscriptionStatus(
+      userId as string,
+    );
     sendResponse(res,{
       success: true,
       statusCode: httpstatus.OK,
-      message: 'Webhool Triggered Successfully',
-      data: null
+      message: 'Subscription Status Retrive Successfull',
+      data: result
     })
   },
 );
@@ -40,4 +54,5 @@ const handleWebhook = catchasync(
 export const subscriptionController = {
   createCheckoutSession,
   handleWebhook,
+  getSubscriptionStatus
 };
