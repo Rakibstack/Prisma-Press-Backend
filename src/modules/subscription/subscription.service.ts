@@ -1,4 +1,3 @@
-import Stripe from "stripe";
 import config from "../../config";
 import { prisma } from "../../lib/prisma";
 import { stripe } from "../../lib/stripe";
@@ -91,16 +90,15 @@ const getSubscriptionStatus = async (userId: string) => {
     isSubscriberExist.currentPeriodEnd &&
     new Date(isSubscriberExist.currentPeriodEnd) > new Date();
 
-    return {
-      status : isSubscriberExist.status,
-      isSubscribed : isActive,
-      currentPeriodEnd : isSubscriberExist.currentPeriodEnd
-    }
-
+  return {
+    status: isSubscriberExist.status,
+    isSubscribed: isActive,
+    currentPeriodEnd: isSubscriberExist.currentPeriodEnd,
+  };
 };
 
 export const subscriptionService = {
   createCheckoutSession,
   handleWebhook,
-  getSubscriptionStatus
+  getSubscriptionStatus,
 };
