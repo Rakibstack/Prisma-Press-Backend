@@ -11,6 +11,20 @@ const createPostIntoDB = async (
   payload: IcreatePostPayload,
   userId: string,
 ) => {
+  const user = await prisma.user.findUniqueOrThrow({
+    where: {
+      id: userId,
+    },
+    include: {
+      subscription: true,
+    },
+  });
+  if (payload.isPremium && user.subscription?.status !== "ACTIVE") {
+    throw new Error(
+      "you are not a premiun user.so you can not create a premium content",
+    );
+  }
+
   const createPost = await prisma.post.create({
     data: {
       ...payload,
@@ -21,8 +35,7 @@ const createPostIntoDB = async (
 };
 
 const getAllPostFromDB = async (query: IpostQuery) => {
-
-  const limit = query.limit ? Number(query.limit) : 10;
+  const limit = query.limit ? Number(query.limit) : 1;
   const page = query.page ? Number(query.page) : 1;
   const skip = (page - 1) * limit;
   const sortBy = query.sortBy ? query.sortBy : "createdAt";
@@ -32,7 +45,6 @@ const getAllPostFromDB = async (query: IpostQuery) => {
   const tagsArray = Array.isArray(tags) ? tags : [];
 
   const addConditions: PostWhereInput[] = [];
-  
 
   if (query.searchTerm) {
     addConditions.push({
@@ -71,7 +83,16 @@ const getAllPostFromDB = async (query: IpostQuery) => {
     });
   }
 
-  const result = await prisma.post.findMany({
+  addConditions.push({
+    isPremium: false,
+  });
+  const totalPostCount = await prisma.post.count({
+    where : {
+      AND: addConditions
+    }
+  })
+
+  const posts = await prisma.post.findMany({
     where: {
       AND: addConditions,
     },
@@ -83,7 +104,17 @@ const getAllPostFromDB = async (query: IpostQuery) => {
     },
   });
 
-  return result;
+  return {
+    data: posts,
+    meta : {
+       page: page,
+       limit: limit,
+       total: totalPostCount,
+       totalPage: Math.ceil(totalPostCount / limit)
+
+    }
+
+  };
 };
 
 const getPostStatsFromDB = async () => {
@@ -182,7 +213,10 @@ const getPostByIdFromDB = async (postId: string) => {
       },
     });
     const post = await tx.post.findUniqueOrThrow({
-      where: { id: postId },
+      where: {
+        id: postId,
+        isPremium: false,
+      },
       include: {
         author: {
           omit: { password: true },
